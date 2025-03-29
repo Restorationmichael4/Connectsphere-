@@ -11,13 +11,20 @@
     <h1>ConnectSphere</h1>
     <nav>
       <button onclick="toggleTheme()">Theme</button>
-      <button onclick="signOut()">Sign Out</button>
+      <button onclick="logout()" id="logoutBtn" style="display:none;">Logout</button>
       <a href="index.html">Feed</a>
-      <a href="auth.html">Auth</a>
     </nav>
   </header>
   <main>
-    <section id="profile">
+    <section id="auth" style="display:none;">
+      <div class="auth-box">
+        <h2>Sign Up or Login</h2>
+        <input id="username" type="text" placeholder="Username">
+        <input id="password" type="password" placeholder="Password">
+        <button onclick="signUpOrLogin()">Go</button>
+      </div>
+    </section>
+    <section id="profile" style="display:none;">
       <div class="profile-header">
         <p id="bioDisplay">No bio yet</p>
         <input id="bioInput" type="text" placeholder="Add a bio (max 150 chars)">
@@ -33,8 +40,7 @@
   </main>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
     
     const firebaseConfig = {
       apiKey: "AIzaSyCaHNfJo_hiNi-9X25W5QNryi8Y_pyTTyM",
@@ -48,10 +54,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
 
     window.db = db;
-    window.auth = auth;
     window.collection = collection;
     window.addDoc = addDoc;
     window.onSnapshot = onSnapshot;
@@ -59,8 +63,7 @@
     window.orderBy = orderBy;
     window.setDoc = setDoc;
     window.doc = doc;
-    window.onAuthStateChanged = onAuthStateChanged;
-    window.signOut = signOut;
+    window.getDoc = getDoc;
   </script>
   <script src="script.js"></script>
 </body>
