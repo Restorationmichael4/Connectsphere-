@@ -1,5 +1,4 @@
-let currentUser = null;
-let authReady = false;
+let currentUserId = localStorage.getItem("userId");
 
 function log(message) {
   console.log(message);
@@ -7,93 +6,68 @@ function log(message) {
   if (debug) debug.textContent = message;
 }
 
-// --- Auth ---
-function checkAuth() {
-  return new Promise((resolve) => {
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      authReady = true;
-      log(user ? `Logged in as ${user.email}` : "Not logged in");
-      const isAuthPage = window.location.pathname.endsWith("auth.html");
-      if (!user && !isAuthPage) {
-        log("Redirecting to auth...");
-        window.location.href = "auth.html";
-      } else if (user && isAuthPage) {
-        log("Redirecting to feed...");
-        window.location.href = "index.html";
+function showSection(sectionId) {
+  document.getElementById("auth").style.display = sectionId === "auth" ? "block" : "none";
+  document.getElementById("feed").style.display = sectionId === "feed" ? "block" : "none";
+  document.getElementById("profile").style.display = sectionId === "profile" ? "block" : "none";
+  document.getElementById("logoutBtn").style.display = sectionId !== "auth" ? "inline" : "none";
+}
+
+// Check if user is logged in
+function checkUser() {
+  if (currentUserId) {
+    log("User loaded: " + currentUserId);
+    showSection(window.location.pathname.endsWith("profile.html") ? "profile" : "feed");
+  } else {
+    log("No user, showing auth...");
+    showSection("auth");
+  }
+}
+checkUser();
+
+function signUpOrLogin() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  if (!username || !password) {
+    log("Username or password missing");
+    alert("Please enter both username and password");
+    return;
+  }
+
+  const userId = username.toLowerCase(); // Use username as ID
+  getDoc(doc(db, "users", userId))
+    .then((docSnap) => {
+      if (docSnap.exists()) {
+        // Login
+        if (docSnap.data().password === password) {
+          currentUserId = userId;
+          localStorage.setItem("userId", userId);
+          log("Logged in as " + userId);
+          showSection(window.location.pathname.endsWith("profile.html") ? "profile" : "feed");
+        } else {
+          log("Wrong password");
+          alert("Wrong password!");
+        }
+      } else {
+        // Sign up
+        setDoc(doc(db, "users", userId), { password: password })
+          .then(() => {
+            currentUserId = userId;
+            localStorage.setItem("userId", userId);
+            log("Signed up as " + userId);
+            showSection(window.location.pathname.endsWith("profile.html") ? "profile" : "feed");
+          })
+          .catch((error) => log("Signup error: " + error.message));
       }
-      resolve();
-    });
-  });
+    })
+    .catch((error) => log("Check user error: " + error.message));
 }
 
-// Wait for auth to initialize before anything else
-checkAuth().then(() => log("Auth check complete"));
-
-function signUp() {
-  if (!authReady) {
-    log("Auth not ready yet, please wait...");
-    alert("Loading, please wait a moment!");
-    return;
-  }
-  const email = document.getElementById("signupEmail").value;
-  const password = document.getElementById("signupPassword").value;
-  if (!email || !password) {
-    log("Email or password missing");
-    alert("Please enter both email and password");
-    return;
-  }
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      log("User signed up: " + userCredential.user.uid);
-      return setDoc(doc(db, "profiles", userCredential.user.uid), { bio: "" });
-    })
-    .then(() => {
-      log("Profile created, redirecting...");
-      window.location.href = "index.html";
-    })
-    .catch((error) => {
-      log("Signup error: " + error.message);
-      alert(error.message);
-    });
-}
-
-function login() {
-  if (!authReady) {
-    log("Auth not ready yet, please wait...");
-    alert("Loading, please wait a moment!");
-    return;
-  }
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
-  if (!email || !password) {
-    log("Email or password missing");
-    alert("Please enter both email and password");
-    return;
-  }
-  signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      log("Logged in, redirecting...");
-      window.location.href = "index.html";
-    })
-    .catch((error) => {
-      log("Login error: " + error.message);
-      alert(error.message);
-    });
-}
-
-function signOut() {
-  if (!authReady) {
-    log("Auth not ready yet, please wait...");
-    alert("Loading, please wait a moment!");
-    return;
-  }
-  signOut(auth)
-    .then(() => {
-      log("Signed out, redirecting...");
-      window.location.href = "auth.html";
-    })
-    .catch((error) => log("Sign out error: " + error.message));
+function logout() {
+  currentUserId = null;
+  localStorage.removeItem("userId");
+  log("Logged out");
+  showSection("auth");
 }
 
 // --- Theme Toggle ---
@@ -105,15 +79,9 @@ if (localStorage.getItem("theme") === "dark") toggleTheme();
 
 // --- Feed ---
 function addPost() {
-  if (!authReady) {
-    log("Auth not ready yet, please wait...");
-    alert("Loading, please wait a moment!");
-    return;
-  }
-  if (!currentUser) {
-    log("Not logged in, redirecting...");
-    alert("Please log in first!");
-    window.location.href = "auth.html";
+  if (!currentUserId) {
+    log("No user, showing auth...");
+    showSection("auth");
     return;
   }
   const postInput = document.getElementById("postInput").value;
@@ -123,7 +91,7 @@ function addPost() {
     alert("Please add text or media");
     return;
   }
-  const postData = { text: postInput, userId: currentUser.uid, timestamp: new Date(), likes: 0 };
+  const postData = { text: postInput, userId: currentUserId, timestamp: new Date(), likes: 0 };
   if (mediaInput) {
     uploadToCloudinary(mediaInput, (url) => {
       postData.media = url;
@@ -159,17 +127,6 @@ onSnapshot(query(collection(db, "posts"), orderBy("timestamp", "desc")), (snapsh
 }, (error) => log("Feed error: " + error.message));
 
 function likePost(postId) {
-  if (!authReady) {
-    log("Auth not ready yet, please wait...");
-    alert("Loading, please wait a moment!");
-    return;
-  }
-  if (!currentUser) {
-    log("Not logged in, redirecting...");
-    alert("Please log in first!");
-    window.location.href = "auth.html";
-    return;
-  }
   updateDoc(doc(db, "posts", postId), { likes: firebase.firestore.FieldValue.increment(1) })
     .then(() => log("Post liked"))
     .catch((error) => log("Like error: " + error.message));
@@ -177,15 +134,9 @@ function likePost(postId) {
 
 // --- Profile ---
 function uploadMedia() {
-  if (!authReady) {
-    log("Auth not ready yet, please wait...");
-    alert("Loading, please wait a moment!");
-    return;
-  }
-  if (!currentUser) {
-    log("Not logged in, redirecting...");
-    alert("Please log in first!");
-    window.location.href = "auth.html";
+  if (!currentUserId) {
+    log("No user, showing auth...");
+    showSection("auth");
     return;
   }
   const mediaInput = document.getElementById("profileMediaInput").files[0];
@@ -195,22 +146,16 @@ function uploadMedia() {
     return;
   }
   uploadToCloudinary(mediaInput, (url) => {
-    addDoc(collection(db, "profiles", currentUser.uid, "media"), { url, timestamp: new Date() })
+    addDoc(collection(db, "profiles", currentUserId, "media"), { url, timestamp: new Date() })
       .then(() => log("Media uploaded"))
       .catch((error) => log("Upload error: " + error.message));
   });
 }
 
 function updateBio() {
-  if (!authReady) {
-    log("Auth not ready yet, please wait...");
-    alert("Loading, please wait a moment!");
-    return;
-  }
-  if (!currentUser) {
-    log("Not logged in, redirecting...");
-    alert("Please log in first!");
-    window.location.href = "auth.html";
+  if (!currentUserId) {
+    log("No user, showing auth...");
+    showSection("auth");
     return;
   }
   const bio = document.getElementById("bioInput").value.slice(0, 150);
@@ -219,12 +164,12 @@ function updateBio() {
     alert("Please enter a bio");
     return;
   }
-  setDoc(doc(db, "profiles", currentUser.uid), { bio }, { merge: true })
+  setDoc(doc(db, "profiles", currentUserId), { bio }, { merge: true })
     .then(() => log("Bio updated"))
     .catch((error) => log("Bio error: " + error.message));
 }
 
-onSnapshot(doc(db, "profiles", currentUser?.uid || "dummy"), (docSnap) => {
+onSnapshot(doc(db, "profiles", currentUserId || "dummy"), (docSnap) => {
   const bioDisplay = document.getElementById("bioDisplay");
   if (bioDisplay && docSnap.exists()) {
     bioDisplay.textContent = docSnap.data().bio || "No bio yet";
@@ -232,7 +177,7 @@ onSnapshot(doc(db, "profiles", currentUser?.uid || "dummy"), (docSnap) => {
   }
 }, (error) => log("Bio load error: " + error.message));
 
-onSnapshot(query(collection(db, "profiles", currentUser?.uid || "dummy", "media"), orderBy("timestamp", "desc")), (snapshot) => {
+onSnapshot(query(collection(db, "profiles", currentUserId || "dummy", "media"), orderBy("timestamp", "desc")), (snapshot) => {
   const mediaGrid = document.getElementById("mediaGrid");
   if (mediaGrid) {
     mediaGrid.innerHTML = "";
@@ -264,4 +209,4 @@ function uploadToCloudinary(file, callback) {
       callback(data.secure_url);
     })
     .catch(error => log("Upload error: " + error.message));
-          }
+    }
