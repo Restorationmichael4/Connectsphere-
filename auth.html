@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -9,29 +8,26 @@
   <h1>ConnectSphere Auth</h1>
   <button onclick="toggleTheme()">Toggle Theme</button>
   <div id="userStatus"></div>
-  
-  <!-- Signup -->
+
   <div id="signup">
     <h2>Sign Up</h2>
     <input id="signupEmail" type="email" placeholder="Email">
     <input id="signupPassword" type="password" placeholder="Password">
     <button onclick="signUp()">Sign Up</button>
   </div>
-  
-  <!-- Login -->
+
   <div id="login">
     <h2>Login</h2>
     <input id="loginEmail" type="email" placeholder="Email">
     <input id="loginPassword" type="password" placeholder="Password">
     <button onclick="login()">Login</button>
   </div>
-  
+
   <a href="index.html">Feed</a> | <a href="profile.html">Profile</a> | <a href="messages.html">Messages</a>
 
-  <!-- Firebase Modular SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+    import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
     
     const firebaseConfig = {
@@ -50,6 +46,8 @@
 
     window.db = db;
     window.auth = auth;
+    window.setDoc = setDoc; // Fixed: Make setDoc global
+    window.doc = doc;
     window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
     window.signInWithEmailAndPassword = signInWithEmailAndPassword;
     window.onAuthStateChanged = onAuthStateChanged;
