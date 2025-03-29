@@ -1,4 +1,5 @@
 let currentUser = null;
+let authReady = false;
 
 function log(message) {
   console.log(message);
@@ -8,22 +9,33 @@ function log(message) {
 
 // --- Auth ---
 function checkAuth() {
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    log(user ? `Logged in as ${user.email}` : "Not logged in");
-    const isAuthPage = window.location.pathname.endsWith("auth.html");
-    if (!user && !isAuthPage) {
-      log("Redirecting to auth...");
-      window.location.href = "auth.html";
-    } else if (user && isAuthPage) {
-      log("Redirecting to feed...");
-      window.location.href = "index.html";
-    }
+  return new Promise((resolve) => {
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      authReady = true;
+      log(user ? `Logged in as ${user.email}` : "Not logged in");
+      const isAuthPage = window.location.pathname.endsWith("auth.html");
+      if (!user && !isAuthPage) {
+        log("Redirecting to auth...");
+        window.location.href = "auth.html";
+      } else if (user && isAuthPage) {
+        log("Redirecting to feed...");
+        window.location.href = "index.html";
+      }
+      resolve();
+    });
   });
 }
-setTimeout(checkAuth, 500); // Delay to ensure auth loads
+
+// Wait for auth to initialize before anything else
+checkAuth().then(() => log("Auth check complete"));
 
 function signUp() {
+  if (!authReady) {
+    log("Auth not ready yet, please wait...");
+    alert("Loading, please wait a moment!");
+    return;
+  }
   const email = document.getElementById("signupEmail").value;
   const password = document.getElementById("signupPassword").value;
   if (!email || !password) {
@@ -47,6 +59,11 @@ function signUp() {
 }
 
 function login() {
+  if (!authReady) {
+    log("Auth not ready yet, please wait...");
+    alert("Loading, please wait a moment!");
+    return;
+  }
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
   if (!email || !password) {
@@ -66,6 +83,11 @@ function login() {
 }
 
 function signOut() {
+  if (!authReady) {
+    log("Auth not ready yet, please wait...");
+    alert("Loading, please wait a moment!");
+    return;
+  }
   signOut(auth)
     .then(() => {
       log("Signed out, redirecting...");
@@ -83,6 +105,11 @@ if (localStorage.getItem("theme") === "dark") toggleTheme();
 
 // --- Feed ---
 function addPost() {
+  if (!authReady) {
+    log("Auth not ready yet, please wait...");
+    alert("Loading, please wait a moment!");
+    return;
+  }
   if (!currentUser) {
     log("Not logged in, redirecting...");
     alert("Please log in first!");
@@ -132,6 +159,11 @@ onSnapshot(query(collection(db, "posts"), orderBy("timestamp", "desc")), (snapsh
 }, (error) => log("Feed error: " + error.message));
 
 function likePost(postId) {
+  if (!authReady) {
+    log("Auth not ready yet, please wait...");
+    alert("Loading, please wait a moment!");
+    return;
+  }
   if (!currentUser) {
     log("Not logged in, redirecting...");
     alert("Please log in first!");
@@ -145,6 +177,11 @@ function likePost(postId) {
 
 // --- Profile ---
 function uploadMedia() {
+  if (!authReady) {
+    log("Auth not ready yet, please wait...");
+    alert("Loading, please wait a moment!");
+    return;
+  }
   if (!currentUser) {
     log("Not logged in, redirecting...");
     alert("Please log in first!");
@@ -165,6 +202,11 @@ function uploadMedia() {
 }
 
 function updateBio() {
+  if (!authReady) {
+    log("Auth not ready yet, please wait...");
+    alert("Loading, please wait a moment!");
+    return;
+  }
   if (!currentUser) {
     log("Not logged in, redirecting...");
     alert("Please log in first!");
@@ -222,4 +264,4 @@ function uploadToCloudinary(file, callback) {
       callback(data.secure_url);
     })
     .catch(error => log("Upload error: " + error.message));
-                              }
+          }
