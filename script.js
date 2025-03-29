@@ -142,7 +142,7 @@ function updateFeed() {
 }
 
 function likePost(postId) {
-  updateDoc(doc(db, "posts", postId), { likes: increment(1) })
+  updateDoc(doc(db, "posts", postId), { likes: firebase.firestore.FieldValue.increment(1) })
     .then(() => log("Post liked"))
     .catch((error) => log("Like error: " + error.message));
 }
@@ -167,17 +167,14 @@ function repost(postId) {
   });
 }
 
-import { arrayUnion } from "firebase/firestore";
-
 function addComment(postId) {
-  const commentInput = document.getElementById(`comment-${postId}`).value.trim();
+  const commentInput = document.getElementById(`comment-${postId}`).value;
   if (!commentInput) {
     log("No comment entered");
     return;
   }
-
   updateDoc(doc(db, "posts", postId), {
-    comments: arrayUnion(commentInput)
+    comments: firebase.firestore.FieldValue.arrayUnion(commentInput)
   })
     .then(() => {
       log("Comment added");
@@ -266,4 +263,4 @@ function uploadToCloudinary(file, callback) {
       callback(data.secure_url);
     })
     .catch(error => log("Upload error: " + error.message));
-                       }
+    }
