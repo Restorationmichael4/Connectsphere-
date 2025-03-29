@@ -7,22 +7,28 @@ function log(message) {
 }
 
 function showSection(sectionId) {
-  document.getElementById("auth").style.display = sectionId === "auth" ? "block" : "none";
-  document.getElementById("feed").style.display = sectionId === "feed" ? "block" : "none";
-  document.getElementById("profile").style.display = sectionId === "profile" ? "block" : "none";
-  document.getElementById("logoutBtn").style.display = sectionId !== "auth" ? "inline" : "none";
+  const auth = document.getElementById("auth");
+  const feed = document.getElementById("feed");
+  const profile = document.getElementById("profile");
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (auth) auth.style.display = sectionId === "auth" ? "block" : "none";
+  if (feed) feed.style.display = sectionId === "feed" ? "block" : "none";
+  if (profile) profile.style.display = sectionId === "profile" ? "block" : "none";
+  if (logoutBtn) logoutBtn.style.display = sectionId !== "auth" ? "inline" : "none";
 }
 
 function checkUser() {
   if (currentUserId) {
     log("User loaded: " + currentUserId);
     showSection(window.location.pathname.endsWith("profile.html") ? "profile" : "feed");
+    updateFeed(); // Force feed update on load
+    updateProfile(); // Force profile update
   } else {
     log("No user, showing auth...");
     showSection("auth");
   }
 }
-checkUser();
+window.addEventListener("load", checkUser);
 
 function signUpOrLogin() {
   const username = document.getElementById("username").value.trim();
@@ -41,6 +47,8 @@ function signUpOrLogin() {
           localStorage.setItem("userId", userId);
           log("Logged in as " + userId);
           showSection(window.location.pathname.endsWith("profile.html") ? "profile" : "feed");
+          updateFeed();
+          updateProfile();
         } else {
           log("Wrong password");
           alert("Wrong password!");
@@ -52,6 +60,8 @@ function signUpOrLogin() {
             localStorage.setItem("userId", userId);
             log("Signed up as " + userId);
             showSection(window.location.pathname.endsWith("profile.html") ? "profile" : "feed");
+            updateFeed();
+            updateProfile();
           })
           .catch((error) => log("Signup error: " + error.message));
       }
@@ -104,9 +114,10 @@ function addPost() {
   document.getElementById("mediaInput").value = "";
 }
 
-onSnapshot(query(collection(db, "posts"), orderBy("timestamp", "desc")), (snapshot) => {
+function updateFeed() {
   const postList = document.getElementById("postList");
-  if (postList) {
+  if (!postList) return;
+  onSnapshot(query(collection(db, "posts"), orderBy("timestamp", "desc")), (snapshot) => {
     postList.innerHTML = "";
     snapshot.forEach((doc) => {
       const data = doc.data();
@@ -127,8 +138,8 @@ onSnapshot(query(collection(db, "posts"), orderBy("timestamp", "desc")), (snapsh
       postList.appendChild(li);
     });
     log("Feed updated with " + snapshot.size + " posts");
-  }
-}, (error) => log("Feed error: " + error.message));
+  }, (error) => log("Feed error: " + error.message));
+}
 
 function likePost(postId) {
   updateDoc(doc(db, "posts", postId), { likes: firebase.firestore.FieldValue.increment(1) })
@@ -173,6 +184,34 @@ function addComment(postId) {
 }
 
 // --- Profile ---
+function updateProfile() {
+  const bioDisplay = document.getElementById("bioDisplay");
+  const mediaGrid = document.getElementById("mediaGrid");
+  if (bioDisplay) {
+    onSnapshot(doc(db, "profiles", currentUserId || "dummy"), (docSnap) => {
+      if (docSnap.exists()) {
+        bioDisplay.textContent = docSnap.data().bio || "No bio yet";
+        log("Bio loaded");
+      }
+    }, (error) => log("Bio load error: " + error.message));
+  }
+  if (mediaGrid) {
+    onSnapshot(query(collection(db, "profiles", currentUserId || "dummy", "media"), orderBy("timestamp", "desc")), (snapshot) => {
+      mediaGrid.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        const el = data.url.includes("video") ? document.createElement("video") : document.createElement("img");
+        el.src = data.url;
+        if (el.tagName === "VIDEO") el.controls = true;
+        div.appendChild(el);
+        mediaGrid.appendChild(div);
+      });
+      log("Media grid updated");
+    }, (error) => log("Media error: " + error.message));
+  }
+}
+
 function uploadMedia() {
   if (!currentUserId) {
     log("No user, showing auth...");
@@ -209,31 +248,6 @@ function updateBio() {
     .catch((error) => log("Bio error: " + error.message));
 }
 
-onSnapshot(doc(db, "profiles", currentUserId || "dummy"), (docSnap) => {
-  const bioDisplay = document.getElementById("bioDisplay");
-  if (bioDisplay && docSnap.exists()) {
-    bioDisplay.textContent = docSnap.data().bio || "No bio yet";
-    log("Bio loaded");
-  }
-}, (error) => log("Bio load error: " + error.message));
-
-onSnapshot(query(collection(db, "profiles", currentUserId || "dummy", "media"), orderBy("timestamp", "desc")), (snapshot) => {
-  const mediaGrid = document.getElementById("mediaGrid");
-  if (mediaGrid) {
-    mediaGrid.innerHTML = "";
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      const div = document.createElement("div");
-      const el = data.url.includes("video") ? document.createElement("video") : document.createElement("img");
-      el.src = data.url;
-      if (el.tagName === "VIDEO") el.controls = true;
-      div.appendChild(el);
-      mediaGrid.appendChild(div);
-    });
-    log("Media grid updated");
-  }
-}, (error) => log("Media error: " + error.message));
-
 // --- Cloudinary Upload ---
 function uploadToCloudinary(file, callback) {
   const formData = new FormData();
@@ -249,4 +263,4 @@ function uploadToCloudinary(file, callback) {
       callback(data.secure_url);
     })
     .catch(error => log("Upload error: " + error.message));
-                      }
+}
