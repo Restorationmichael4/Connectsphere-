@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile - ConnectSphere</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Your Profile</h1>
+  <button onclick="toggleTheme()">Toggle Theme</button>
+  <button onclick="signOut()">Sign Out</button>
+  <div id="userStatus"></div>
+  <input id="bioInput" type="text" placeholder="Add a bio (max 150 chars)">
+  <button onclick="updateBio()">Save Bio</button>
+  <p id="bioDisplay"></p>
+  <label><input type="checkbox" id="privacyToggle" onchange="togglePrivacy()"> Private Profile</label>
+  <button id="followBtn" onclick="followUser()">Follow</button>
+  <input id="profileMediaInput" type="file" accept="image/*,video/*">
+  <button onclick="uploadMedia()">Upload</button>
+  <div id="mediaGrid" class="grid"></div>
+  <a href="index.html">Feed</a> | <a href="messages.html">Messages</a> | <a href="auth.html">Auth</a>
+
+  <!-- Firebase Modular SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyCaHNfJo_hiNi-9X25W5QNryi8Y_pyTTyM",
+      authDomain: "connectsphere-c84c1.firebaseapp.com",
+      projectId: "connectsphere-c84c1",
+      storageBucket: "connectsphere-c84c1.firebasestorage.app",
+      messagingSenderId: "54623484942",
+      appId: "1:54623484942:web:2a3659f0230498174ed05f",
+      measurementId: "G-16PL7ZGP3L"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    window.db = db;
+    window.auth = auth;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.onSnapshot = onSnapshot;
+    window.query = query;
+    window.orderBy = orderBy;
+    window.updateDoc = updateDoc;
+    window.doc = doc;
+    window.setDoc = setDoc;
+    window.onAuthStateChanged = onAuthStateChanged;
+    window.signOut = signOut;
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
