@@ -11,57 +11,64 @@
     <h1>ConnectSphere</h1>
     <nav>
       <button onclick="toggleTheme()">Theme</button>
-      <button onclick="logout()" id="logoutBtn" style="display:none;">Logout</button>
       <a href="profile.html">Profile</a>
+      <button onclick="showSection('feed')">Feed</button>
+      <button onclick="showSection('clips')">Clips</button>
+      <button onclick="showSection('messages')">Messages</button>
+      <button id="logoutBtn" onclick="logout()" style="display: none;">Logout</button>
     </nav>
   </header>
   <main>
-    <section id="auth" style="display:none;">
-      <div class="auth-box">
-        <h2>Sign Up or Login</h2>
-        <input id="username" type="text" placeholder="Username">
-        <input id="password" type="password" placeholder="Password">
-        <button onclick="signUpOrLogin()">Go</button>
-      </div>
+    <section id="auth">
+      <input type="text" id="username" placeholder="Username">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="signUpOrLogin()">Go</button>
     </section>
-    <section id="feed" style="display:none;">
-      <div class="post-form">
-        <input id="postInput" type="text" placeholder="What’s on your mind?">
-        <input id="mediaInput" type="file" accept="image/*,video/*">
-        <button onclick="addPost()">Post</button>
-      </div>
+    <section id="feed" style="display: none;">
+      <textarea id="postInput" placeholder="What's on your mind?"></textarea>
+      <input type="file" id="mediaInput" accept="image/*,video/*">
+      <button onclick="addPost()">Post</button>
+      <input type="text" id="searchInput" placeholder="Search users">
+      <button onclick="searchUsers()">Search</button>
+      <ul id="searchResults"></ul>
       <ul id="postList"></ul>
     </section>
-    <div id="debug" class="debug"></div>
+    <section id="clips" style="display: none;">
+      <textarea id="clipInput" placeholder="Add a caption"></textarea>
+      <input type="file" id="clipMediaInput" accept="video/*" onchange="previewClip()">
+      <div id="clipPreview" style="display: none;">
+        <video id="clipVideo" controls></video>
+        <input type="range" id="clipTrimStart" min="0" max="100" value="0">
+        <input type="range" id="clipTrimEnd" min="0" max="100" value="100">
+        <button onclick="addPost(true)">Post Clip</button>
+      </div>
+      <ul id="clipList"></ul>
+    </section>
+    <section id="messages" style="display: none;">
+      <div class="chat-container">
+        <div id="messageList" class="chat-messages"></div>
+        <div class="chat-input">
+          <input type="text" id="messageInput" placeholder="Type a message...">
+          <button onclick="sendCurrentMessage()">Send</button>
+        </div>
+      </div>
+    </section>
   </main>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
-    
+  <div id="debug"></div>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyCaHNfJo_hiNi-9X25W5QNryi8Y_pyTTyM",
-      authDomain: "connectsphere-c84c1.firebaseapp.com",
-      projectId: "connectsphere-c84c1",
-      storageBucket: "connectsphere-c84c1.firebasestorage.app",
-      messagingSenderId: "54623484942",
-      appId: "1:54623484942:web:2a3659f0230498174ed05f",
-      measurementId: "G-16PL7ZGP3L"
+      apiKey: "AIzaSyDYpDeE2JstroFROk4jGVeqdyg47m5pMZs",
+      authDomain: "connectsphere-123.firebaseapp.com",
+      projectId: "connectsphere-123",
+      storageBucket: "connectsphere-123.appspot.com",
+      messagingSenderId: "693363680973",
+      appId: "1:693363680973:web:fbcb7f75f5c4c4ebfb6825"
     };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.db = db;
-    window.collection = collection;
-    window.addDoc = addDoc;
-    window.onSnapshot = onSnapshot;
-    window.query = query;
-    window.orderBy = orderBy;
-    window.updateDoc = updateDoc;
-    window.doc = doc;
-    window.setDoc = setDoc;
-    window.getDoc = getDoc;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
   </script>
   <script src="script.js"></script>
 </body>
-</html>
+                                                   </html>
