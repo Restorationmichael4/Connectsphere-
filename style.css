@@ -1,0 +1,62 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  transition: background-color 0.3s, color 0.3s;
+}
+body.light {
+  background-color: #f0f0f0;
+  color: #333;
+}
+body.dark {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+h1, h2 {
+  color: inherit;
+}
+#feed, #trending, #groups, #mediaGrid, #dmList, #stories, #explore, #signup, #login {
+  background: white;
+  padding: 20px;
+  margin: 10px 0;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+body.dark #feed, body.dark #trending, body.dark #groups, body.dark #mediaGrid, body.dark #dmList, body.dark #stories, body.dark #explore, body.dark #signup, body.dark #login {
+  background: #333;
+}
+input, button {
+  margin: 5px 0;
+  padding: 8px;
+}
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #0056b3;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+img, video {
+  max-width: 100%;
+  border-radius: 5px;
+}
+#notifications {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #007bff;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  display: none;
+}
+.reaction {
+  cursor: pointer;
+  margin: 0 5px;
+}
