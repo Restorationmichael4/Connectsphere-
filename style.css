@@ -60,7 +60,19 @@ main {
   padding: 0 1rem;
 }
 
-textarea, input[type="text"], input[type="password"], input[type="file"] {
+.post-form {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+body.dark .post-form {
+  background: #242526;
+}
+
+.post-form input[type="text"], .post-form input[type="file"] {
   width: 100%;
   padding: 0.75rem;
   margin-bottom: 0.5rem;
@@ -69,13 +81,13 @@ textarea, input[type="text"], input[type="password"], input[type="file"] {
   font-size: 1rem;
 }
 
-body.dark textarea, body.dark input {
+body.dark .post-form input {
   background: #3a3b3c;
   color: #e4e6eb;
   border-color: #4a4b4c;
 }
 
-button {
+.post-form button {
   width: 100%;
   padding: 0.75rem;
   background: #1877f2;
@@ -86,18 +98,11 @@ button {
   font-weight: 600;
 }
 
-button:hover {
+.post-form button:hover {
   background: #145dbf;
 }
 
-#postList, #clipList, #searchResults {
-  list-style: none;
-  padding: 0;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-#postList li, #clipList li {
+#postList li, .grid div {
   background: #fff;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -105,27 +110,19 @@ button:hover {
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-body.dark #postList li, body.dark #clipList li {
+body.dark #postList li, body.dark .grid div {
   background: #242526;
 }
 
-#postList img, #postList video, #clipList img, #clipList video {
+#postList img, #postList video, .grid img, .grid video {
   max-width: 100%;
   border-radius: 6px;
   margin-top: 0.5rem;
 }
 
-.post-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+#postList button {
   margin-top: 0.5rem;
-}
-
-.post-actions button, .post-actions input {
-  flex: 1;
-  min-width: 80px;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   background: #e4e6eb;
   color: #050505;
   border: none;
@@ -134,167 +131,86 @@ body.dark #postList li, body.dark #clipList li {
   font-weight: 500;
 }
 
-body.dark .post-actions button {
+body.dark #postList button {
   background: #3a3b3c;
   color: #e4e6eb;
 }
 
-.post-actions button:hover {
+#postList button:hover {
   background: #d0d3d9;
 }
 
-body.dark .post-actions button:hover {
+body.dark #postList button:hover {
   background: #4a4b4c;
 }
 
-.comments {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #606770;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
 }
 
-body.dark .comments {
-  color: #b0b3b8;
-}
-
-.profile-pic {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  margin-right: 0.5rem;
-}
-
-.post-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-#clipList video {
-  width: 100%;
-  max-height: 80vh;
-}
-
-#searchResults li {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem;
-  border-bottom: 1px solid #ccc;
-}
-
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  height: 80vh;
+.profile-header {
   background: #fff;
+  padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
 }
 
-body.dark .chat-container {
+body.dark .profile-header {
   background: #242526;
 }
 
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
+.auth-box {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
 }
 
-.chat-message {
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: flex-start;
+body.dark .auth-box {
+  background: #242526;
 }
 
-.chat-message.sent {
-  justify-content: flex-end;
+.auth-box h2 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
-.chat-message .bubble {
-  max-width: 70%;
+.auth-box input {
+  width: 100%;
   padding: 0.75rem;
-  border-radius: 12px;
-  background: #e9ecef;
-  color: #1c1e21;
-}
-
-.chat-message.sent .bubble {
-  background: #1877f2;
-  color: #fff;
-}
-
-body.dark .chat-message .bubble {
-  background: #3a3b3c;
-  color: #e4e6eb;
-}
-
-body.dark .chat-message.sent .bubble {
-  background: #145dbf;
-}
-
-.chat-message .timestamp {
-  font-size: 0.75rem;
-  color: #606770;
-  margin-top: 0.25rem;
-}
-
-body.dark .chat-message .timestamp {
-  color: #b0b3b8;
-}
-
-.chat-input {
-  display: flex;
-  padding: 1rem;
-  border-top: 1px solid #ccd0d5;
-}
-
-body.dark .chat-input {
-  border-top: 1px solid #4a4b4c;
-}
-
-.chat-input input {
-  flex: 1;
-  padding: 0.75rem;
+  margin-bottom: 0.5rem;
   border: 1px solid #ccd0d5;
   border-radius: 6px;
-  margin-right: 0.5rem;
+  font-size: 1rem;
 }
 
-body.dark .chat-input input {
+body.dark .auth-box input {
   background: #3a3b3c;
   color: #e4e6eb;
   border-color: #4a4b4c;
 }
 
-.chat-input button {
-  padding: 0.75rem 1rem;
+.auth-box button {
+  width: 100%;
+  padding: 0.75rem;
   background: #1877f2;
   color: #fff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
 }
 
-.chat-input button:hover {
+.auth-box button:hover {
   background: #145dbf;
 }
 
-#clipPreview {
-  margin: 1rem 0;
-}
-
-#clipPreview video {
-  width: 100%;
-  max-height: 40vh;
-}
-
-#clipTrimStart, #clipTrimEnd {
-  width: 100%;
-  margin: 0.5rem 0;
-}
-
-#debug {
+.debug {
   position: fixed;
   bottom: 10px;
   left: 10px;
@@ -306,3 +222,35 @@ body.dark .chat-input input {
   max-width: 300px;
   word-wrap: break-word;
   }
+
+#postList {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 0;
+  list-style: none;
+}
+
+.post-content {
+  margin-bottom: 0.5rem;
+}
+
+.post-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.post-actions input {
+  flex: 1;
+  min-width: 150px;
+}
+
+.comments {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #606770;
+}
+
+body.dark .comments {
+  color: #b0b3b8;
+}
