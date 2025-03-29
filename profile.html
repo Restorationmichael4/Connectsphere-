@@ -2,24 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile - ConnectSphere</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Your Profile</h1>
-  <button onclick="toggleTheme()">Toggle Theme</button>
-  <button onclick="signOut()">Sign Out</button>
-  <div id="userStatus"></div>
-  <input id="bioInput" type="text" placeholder="Add a bio (max 150 chars)">
-  <button onclick="updateBio()">Save Bio</button>
-  <p id="bioDisplay"></p>
-  <input id="profileMediaInput" type="file" accept="image/*,video/*">
-  <button onclick="uploadMedia()">Upload</button>
-  <div id="mediaGrid" class="grid"></div>
-
-  <div id="notifications"></div>
-  <a href="index.html">Feed</a> | <a href="messages.html">Messages</a> | <a href="auth.html">Auth</a>
-
+  <header>
+    <h1>ConnectSphere</h1>
+    <nav>
+      <button onclick="toggleTheme()">Theme</button>
+      <button onclick="signOut()">Sign Out</button>
+      <a href="index.html">Feed</a>
+      <a href="auth.html">Auth</a>
+    </nav>
+  </header>
+  <main>
+    <section id="profile">
+      <div class="profile-header">
+        <p id="bioDisplay">No bio yet</p>
+        <input id="bioInput" type="text" placeholder="Add a bio (max 150 chars)">
+        <button onclick="updateBio()">Save Bio</button>
+      </div>
+      <div class="post-form">
+        <input id="profileMediaInput" type="file" accept="image/*,video/*">
+        <button onclick="uploadMedia()">Upload</button>
+      </div>
+      <div id="mediaGrid" class="grid"></div>
+    </section>
+    <div id="debug" class="debug"></div>
+  </main>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
@@ -46,7 +57,7 @@
     window.onSnapshot = onSnapshot;
     window.query = query;
     window.orderBy = orderBy;
-    window.setDoc = setDoc; // Fixed: Make setDoc global
+    window.setDoc = setDoc;
     window.doc = doc;
     window.onAuthStateChanged = onAuthStateChanged;
     window.signOut = signOut;
