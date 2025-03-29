@@ -2,61 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ConnectSphere</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>ConnectSphere</h1>
-  <button onclick="toggleTheme()">Toggle Theme</button>
-  <button onclick="signOut()">Sign Out</button>
-  <div id="userStatus"></div>
-
-  <!-- Stories -->
-  <div id="stories">
-    <h2>Stories</h2>
-    <input id="storyInput" type="file" accept="image/*,video/*">
-    <button onclick="addStory()">Add Story</button>
-    <div id="storyList" class="grid"></div>
-  </div>
-
-  <!-- Feed -->
-  <div id="feed">
-    <h2>Feed</h2>
-    <input id="postInput" type="text" placeholder="What’s on your mind? #hashtag">
-    <input id="mediaInput" type="file" accept="image/*,video/*">
-    <button onclick="addPost()">Post</button>
-    <ul id="postList"></ul>
-  </div>
-
-  <!-- Trending -->
-  <div id="trending">
-    <h2>Trending</h2>
-    <ul id="trendingList"></ul>
-  </div>
-
-  <!-- Groups -->
-  <div id="groups">
-    <h2>Group Chat</h2>
-    <input id="groupInput" type="text" placeholder="Say something">
-    <button onclick="addGroupMessage()">Send</button>
-    <ul id="groupList"></ul>
-  </div>
-
-  <!-- Explore -->
-  <div id="explore">
-    <h2>Explore</h2>
-    <ul id="exploreList"></ul>
-  </div>
-
-  <!-- Notifications -->
-  <div id="notifications"></div>
-
-  <a href="profile.html">Profile</a> | <a href="messages.html">Messages</a> | <a href="auth.html">Auth</a>
-
-  <!-- Firebase Modular SDK -->
+  <header>
+    <h1>ConnectSphere</h1>
+    <nav>
+      <button onclick="toggleTheme()">Theme</button>
+      <button onclick="signOut()">Sign Out</button>
+      <a href="profile.html">Profile</a>
+      <a href="auth.html">Auth</a>
+    </nav>
+  </header>
+  <main>
+    <section id="feed">
+      <div class="post-form">
+        <input id="postInput" type="text" placeholder="What’s on your mind?">
+        <input id="mediaInput" type="file" accept="image/*,video/*">
+        <button onclick="addPost()">Post</button>
+      </div>
+      <ul id="postList"></ul>
+    </section>
+    <div id="debug" class="debug"></div>
+  </main>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs, updateDoc, doc, where, setDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
     
     const firebaseConfig = {
@@ -80,14 +53,11 @@
     window.onSnapshot = onSnapshot;
     window.query = query;
     window.orderBy = orderBy;
-    window.getDocs = getDocs;
     window.updateDoc = updateDoc;
     window.doc = doc;
-    window.where = where;
-    window.setDoc = setDoc;
     window.onAuthStateChanged = onAuthStateChanged;
     window.signOut = signOut;
   </script>
   <script src="script.js"></script>
 </body>
-                                       </html>
+</html>
