@@ -13,7 +13,6 @@ function showSection(sectionId) {
   document.getElementById("logoutBtn").style.display = sectionId !== "auth" ? "inline" : "none";
 }
 
-// Check if user is logged in
 function checkUser() {
   if (currentUserId) {
     log("User loaded: " + currentUserId);
@@ -33,12 +32,10 @@ function signUpOrLogin() {
     alert("Please enter both username and password");
     return;
   }
-
-  const userId = username.toLowerCase(); // Use username as ID
+  const userId = username.toLowerCase();
   getDoc(doc(db, "users", userId))
     .then((docSnap) => {
       if (docSnap.exists()) {
-        // Login
         if (docSnap.data().password === password) {
           currentUserId = userId;
           localStorage.setItem("userId", userId);
@@ -49,7 +46,6 @@ function signUpOrLogin() {
           alert("Wrong password!");
         }
       } else {
-        // Sign up
         setDoc(doc(db, "users", userId), { password: password })
           .then(() => {
             currentUserId = userId;
@@ -91,7 +87,7 @@ function addPost() {
     alert("Please add text or media");
     return;
   }
-  const postData = { text: postInput, userId: currentUserId, timestamp: new Date(), likes: 0 };
+  const postData = { text: postInput, userId: currentUserId, timestamp: new Date(), likes: 0, comments: [] };
   if (mediaInput) {
     uploadToCloudinary(mediaInput, (url) => {
       postData.media = url;
@@ -116,13 +112,21 @@ onSnapshot(query(collection(db, "posts"), orderBy("timestamp", "desc")), (snapsh
       const data = doc.data();
       const li = document.createElement("li");
       li.innerHTML = `
-        ${data.text || ""}
-        ${data.media ? (data.media.includes("video") ? `<video src="${data.media}" controls></video>` : `<img src="${data.media}">`) : ""}
-        <button onclick="likePost('${doc.id}')">Like (${data.likes})</button>
+        <div class="post-content">
+          ${data.text || ""}
+          ${data.media ? (data.media.includes("video") ? `<video src="${data.media}" controls></video>` : `<img src="${data.media}">`) : ""}
+        </div>
+        <div class="post-actions">
+          <button onclick="likePost('${doc.id}')">Like (${data.likes})</button>
+          <button onclick="repost('${doc.id}')">Repost</button>
+          <input id="comment-${doc.id}" type="text" placeholder="Add a comment">
+          <button onclick="addComment('${doc.id}')">Comment</button>
+        </div>
+        <div class="comments">${data.comments ? data.comments.map(c => `<p>${c}</p>`).join("") : ""}</div>
       `;
       postList.appendChild(li);
     });
-    log("Feed updated");
+    log("Feed updated with " + snapshot.size + " posts");
   }
 }, (error) => log("Feed error: " + error.message));
 
@@ -130,6 +134,42 @@ function likePost(postId) {
   updateDoc(doc(db, "posts", postId), { likes: firebase.firestore.FieldValue.increment(1) })
     .then(() => log("Post liked"))
     .catch((error) => log("Like error: " + error.message));
+}
+
+function repost(postId) {
+  getDoc(doc(db, "posts", postId)).then((docSnap) => {
+    if (docSnap.exists()) {
+      const original = docSnap.data();
+      const repostData = {
+        text: original.text,
+        media: original.media,
+        userId: currentUserId,
+        timestamp: new Date(),
+        likes: 0,
+        comments: [],
+        repostFrom: postId
+      };
+      addDoc(collection(db, "posts"), repostData)
+        .then(() => log("Reposted"))
+        .catch((error) => log("Repost error: " + error.message));
+    }
+  });
+}
+
+function addComment(postId) {
+  const commentInput = document.getElementById(`comment-${postId}`).value;
+  if (!commentInput) {
+    log("No comment entered");
+    return;
+  }
+  updateDoc(doc(db, "posts", postId), {
+    comments: firebase.firestore.FieldValue.arrayUnion(commentInput)
+  })
+    .then(() => {
+      log("Comment added");
+      document.getElementById(`comment-${postId}`).value = "";
+    })
+    .catch((error) => log("Comment error: " + error.message));
 }
 
 // --- Profile ---
@@ -209,4 +249,4 @@ function uploadToCloudinary(file, callback) {
       callback(data.secure_url);
     })
     .catch(error => log("Upload error: " + error.message));
-    }
+                      }
